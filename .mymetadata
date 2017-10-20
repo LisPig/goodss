@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="goodss"
+  id="myeclipse.1508287786839"
+  context-root="/goodss"
+  j2ee-spec="5.0"
+  archive="goodss.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+

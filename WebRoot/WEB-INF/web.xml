@@ -53,17 +53,22 @@
  	<servlet-class>goodss.user.web.servlet.UserServlet</servlet-class>
  </servlet>
   <servlet>
-    <description>This is the description of my J2EE component</description>
-    <display-name>This is the display name of my J2EE component</display-name>
+    
     <servlet-name>CategoryServlet</servlet-name>
     <servlet-class>goodss.category.web.servlet.CategoryServlet</servlet-class>
   </servlet>
   <servlet>
-    <description>This is the description of my J2EE component</description>
-    <display-name>This is the display name of my J2EE component</display-name>
+    
     <servlet-name>BookServlet</servlet-name>
     <servlet-class>goodss.book.web.servlet.BookServlet</servlet-class>
   </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>CartServlet</servlet-name>
+    <servlet-class>goodss.cart.web.servlet.CartServlet</servlet-class>
+  </servlet>
+
 
 
   
@@ -80,6 +85,10 @@
   <servlet-mapping>
     <servlet-name>BookServlet</servlet-name>
     <url-pattern>/BookServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>CartServlet</servlet-name>
+    <url-pattern>/CartServlet</url-pattern>
   </servlet-mapping>
   
 </web-app>

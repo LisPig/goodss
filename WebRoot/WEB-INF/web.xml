@@ -67,7 +67,10 @@
     <servlet-class>goodss.cart.web.servlet.CartItemServlet</servlet-class>
   </servlet>
 
-
+  <servlet>
+    <servlet-name>OrderServlet</servlet-name>
+    <servlet-class>goodss.order.web.servlet.OrderServlet</servlet-class>
+  </servlet>
 
   
 
@@ -87,6 +90,10 @@
   <servlet-mapping>
     <servlet-name>CartItemServlet</servlet-name>
     <url-pattern>/CartItemServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>OrderServlet</servlet-name>
+    <url-pattern>/OrderServlet</url-pattern>
   </servlet-mapping>
   
 </web-app>

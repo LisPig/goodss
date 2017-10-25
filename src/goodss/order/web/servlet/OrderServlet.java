@@ -3,6 +3,10 @@ package goodss.order.web.servlet;
 
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -10,13 +14,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import pager.PageBean;
 
+import goodss.cart.domain.CartItem;
+import goodss.cart.service.CartItemService;
 import goodss.order.domain.Order;
+import goodss.order.domain.OrderItem;
 import goodss.order.service.OrderService;
 import goodss.user.domain.User;
+import cn.itcast.commons.CommonUtils;
 import cn.itcast.servlet.BaseServlet;
 
 public class OrderServlet extends BaseServlet {
 	private OrderService orderService=new OrderService();
+	private CartItemService cartItemService=new CartItemService();
 	
 	/**
 	 * 获取当前页码
@@ -53,6 +62,72 @@ public class OrderServlet extends BaseServlet {
 			url = url.substring(0, index);
 		}
 		return url;
+	}
+	
+	public String load(HttpServletRequest req,HttpServletResponse resp)
+		throws ServletException,IOException{
+		String oid=req.getParameter("oid");
+		Order order=orderService.load(oid);
+		req.setAttribute("order", order);
+		String btn=req.getParameter("btn");
+		req.setAttribute("btn", btn);
+		return "/jsps/order/desc.jsp";
+	}
+	
+	/**
+	 * 生成订单
+	 * @param req
+	 * @param resp
+	 * @return
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public String createOrder(HttpServletRequest req,HttpServletResponse resp)
+		throws ServletException,IOException{
+		//获取所有购物车条目
+		String cartItemIds=req.getParameter("cartItemIds");
+		List<CartItem> cartItemList=cartItemService.loadCartItems(cartItemIds);
+		if(cartItemList.size()==0){
+			req.setAttribute("code","error");
+			req.setAttribute("msg", "您没有选择要购买的图书，不能下单！");
+			return "f:/jsps/msg.jsp";
+		}
+		//创建order
+		Order order=new Order();
+		order.setOid(CommonUtils.uuid());//设置主键
+		order.setOrdertime(String.format("%tF %<tT", new Date()));//下单时间
+		order.setStatus(1);//设置状态，1表示未付款
+		order.setAddress(req.getParameter("address"));//设置收货地址
+		User owner=(User)req.getSession().getAttribute("sessionUser");
+		order.setOwner(owner);//设置订单所有者
+		
+		BigDecimal total=new BigDecimal("0");
+		for(CartItem cartItem:cartItemList){
+			total=total.add(new BigDecimal(cartItem.getSubtotal()+""));
+		}
+		order.setTotal(total.doubleValue());//设置总计
+		
+		//创建List<Orderitem>
+		List<OrderItem>orderItemList=new ArrayList<OrderItem>();
+		for(CartItem cartItem:cartItemList){
+			OrderItem orderItem=new OrderItem();
+			orderItem.setOrderItemId(CommonUtils.uuid());//设置主键
+			orderItem.setQuantity(cartItem.getQuantity());
+			orderItem.setSubtotal(cartItem.getSubtotal());
+			orderItem.setBook(cartItem.getBook());
+			orderItem.setOrder(order);
+			orderItemList.add(orderItem);
+		}
+		order.setOrderItemList(orderItemList);
+		
+		//调用service完成添加
+		orderService.createOrder(order);
+		//删除购物车条目
+		//CartItemService.batchDelete(cartItemIds);
+		
+		//保存订单，转发到ordersucc.jsp
+		req.setAttribute("order", order);
+		return "f:/jsps/order/ordersucc.jsp";
 	}
 	
 	/**

@@ -10,9 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
 
 
@@ -26,6 +29,31 @@ import cn.itcast.jdbc.TxQueryRunner;
 public class OrderDao {
 	private QueryRunner qr=new TxQueryRunner();
 	
+	/**
+	 * 生成订单
+	 * @param order
+	 * @throws SQLException
+	 */
+	public void add(Order order)throws SQLException{
+		//插入订单
+		String sql="insert into t_order values(?,?,?,?,?,?)";
+		Object[] params={order.getOid(),order.getOrdertime(),order.getTotal(),order.getStatus(),
+				order.getAddress(),order.getOwner().getUid()};
+		qr.update(sql,params);
+		
+		//循环遍历所有条目
+		sql="insert into t_orderitem values(?,?,?,?,?,?,?,?)";
+		int len =order.getOrderItemList().size();
+		Object[][] objs=new Object[len][];
+		for (int i = 0; i < len; i++) {
+			OrderItem item=order.getOrderItemList().get(i);
+			objs[i] =new Object[]{item.getOrderItemId(),item.getQuantity(),
+					item.getSubtotal(),item.getBook().getBid(),item.getBook()
+					.getBname(),item.getBook().getCurrPrice(),
+					item.getBook().getImage_b(),order.getOid()};
+		}
+		qr.batch(sql, objs);
+	}
 	
 	/**
 	 * 按用户查询订单
@@ -39,8 +67,28 @@ public class OrderDao {
 		exprList.add(new Expression("uid", "=", uid));
 		return findByCriteria(exprList, pc);
 	}
-	
-	
+	/**
+	 * 查询所有
+	 * @param pc
+	 * @return
+	 * @throws SQLException
+	 */
+	public PageBean<Order>findAll(int pc)throws SQLException{
+		List<Expression> exprList=new ArrayList<Expression>();
+		return findByCriteria(exprList, pc);
+	}
+	/**
+	 * 按状态查询
+	 * @param status
+	 * @param pc
+	 * @return
+	 * @throws SQLException
+	 */
+	public PageBean<Order>findByStatus(int status,int pc)throws SQLException{
+		List<Expression>exprList=new ArrayList<Expression>();
+		exprList.add(new Expression("status","=",status+""));
+		return findByCriteria(exprList, pc);
+	}
 	
 	
 	private PageBean<Order>findByCriteria(List<Expression> exprList,int pc)
@@ -142,6 +190,13 @@ public class OrderDao {
 		Book book=CommonUtils.toBean(map, Book.class);
 		orderItem.setBook(book);
 		return orderItem;
+	}
+
+	public Order load(String oid) throws SQLException {
+		String sql="select * from t_order where oid=?";
+		Order order=qr.query(sql, new BeanHandler<Order>(Order.class),oid);
+		loadOrderItem(order);
+		return order ;
 	}
 
 }

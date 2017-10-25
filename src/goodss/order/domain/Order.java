@@ -2,6 +2,8 @@ package goodss.order.domain;
 
 import java.util.List;
 
+import pager.Expression;
+
 import goodss.user.domain.User;
 
 public class Order {
@@ -11,6 +13,7 @@ public class Order {
 	private int status;//订单状态
 	private String address;//收货地址
 	private User owner;//订单的所有者
+	
 	private List<OrderItem> orderItemList;
 	
 	//private List<OrderItem>orderItemList;
@@ -57,6 +60,10 @@ public class Order {
 	public void setOrderItemList(List<OrderItem> orderItemList) {
 		// TODO Auto-generated method stub
 		this.orderItemList=orderItemList;
+	}
+	public List<OrderItem> getOrderItemList() {
+		// TODO Auto-generated method stub
+		return orderItemList;
 	}
 	
 	

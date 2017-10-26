@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.MapHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import com.sun.org.apache.bcel.internal.generic.NEW;
 
@@ -84,5 +86,83 @@ public class CategoryDao {
 		String sql="select * from t_category where pid=? order by orderBy";
 		List<Map<String, Object>> mapList=qr.query(sql, new MapListHandler(),pid);
 		return toCategoryList(mapList);
+	}
+
+	/**
+	 * 添加分类
+	 * @param category
+	 * @throws SQLException
+	 */
+	public void add(Category category) throws SQLException {
+		String sql="insert into t_category(cid,cname,pid,'desc') values(?,?,?,?)";
+		
+		String pid=null;//一级分类
+		if(category.getParent()!=null){
+			pid=category.getParent().getCid();
+		}
+		Object[] params={category.getCid(),category.getCname(),pid,category.getDesc()};
+		qr.update(sql,params);
+	}
+
+	/**
+	 * 获取所有父分类，但不带子分类
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<Category> findByParents() throws SQLException {
+		String sql="select * from t_category where pid is null order by orderBy";
+		List<Map<String , Object>>mapList=qr.query(sql, new MapListHandler());
+		return toCategoryList(mapList);
+		
+	}
+
+	/**
+	 * 加载分类
+	 * @param cid
+	 * @return
+	 * @throws SQLException 
+	 */
+	public Category load(String cid) throws SQLException {
+		String sql="select * from t_category where cid=?";
+		return toCategory(qr.query(sql, new MapHandler(),cid));
+	}
+
+	/**
+	 * 修改分类，可修改一二级
+	 * @param category
+	 * @throws SQLException 
+	 */
+	public void edit(Category category) throws SQLException {
+		// TODO Auto-generated method stub
+		String sql="update t_category set cname=?,pid=?,'desc'=? where cid=?";
+		String pid=null;
+		if(category.getParent()!=null){
+			pid=category.getParent().getCid();
+		}
+		Object[] params={category.getCname(),pid,category.getDesc(),category.getCid()};
+		qr.update(sql,params);
+	}
+
+	/**
+	 * 查询指定父分类下子分类的个数
+	 * @param pid
+	 * @return
+	 * @throws SQLException 
+	 */
+	public int findChildrenCountByParent(String pid) throws SQLException {
+		String sql="select count(*) from t_category where pid=?";
+		Number cnt=(Number)qr.query(sql, new ScalarHandler(),pid);
+		return cnt==null? 0:cnt.intValue();
+	}
+
+	/**
+	 * 删除分类
+	 * @param cid
+	 * @throws SQLException
+	 */
+	public void delete(String cid) throws SQLException {
+		String sql="delete from t_category where cid=?";
+		qr.update(sql,cid);
+		
 	}
 }

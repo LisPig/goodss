@@ -30,6 +30,23 @@ public class OrderDao {
 	private QueryRunner qr=new TxQueryRunner();
 	
 	/**
+	 * 查询订单状态
+	 * @param oid
+	 * @return
+	 * @throws SQLException
+	 */
+	public int findStatus(String oid) throws SQLException{
+		String sql="select status from t_order oid=?";
+		Number number=(Number)qr.query(sql, new ScalarHandler(),oid);
+		return number.intValue();
+	}
+	
+	public void updateStatus(String oid,int status)throws SQLException{
+		String sql="update t_order set status=? where oid=?";
+		qr.update(sql,status,oid);
+	}
+	
+	/**
 	 * 生成订单
 	 * @param order
 	 * @throws SQLException
@@ -192,6 +209,12 @@ public class OrderDao {
 		return orderItem;
 	}
 
+	/**
+	 * 加载订单
+	 * @param oid
+	 * @return
+	 * @throws SQLException
+	 */
 	public Order load(String oid) throws SQLException {
 		String sql="select * from t_order where oid=?";
 		Order order=qr.query(sql, new BeanHandler<Order>(Order.class),oid);

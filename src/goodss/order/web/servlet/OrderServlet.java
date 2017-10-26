@@ -63,7 +63,60 @@ public class OrderServlet extends BaseServlet {
 		}
 		return url;
 	}
-	
+	/**
+	 * 取消订单
+	 * @param req
+	 * @param resp
+	 * @return
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public String cencel(HttpServletRequest req,HttpServletResponse resp)
+		throws ServletException,IOException{
+		String oid=req.getParameter("oid");
+		//检验订单状态
+		int status=orderService.findStatus(oid);
+		if(status!=1){
+			req.setAttribute("code", "error");
+			req.setAttribute("msg", "状态不对，不能取消");
+			return "f:/jsps/msg.jsp";
+		}
+		orderService.updateStatus(oid, 5);//设置状态为取消
+		req.setAttribute("code", "success");
+		req.setAttribute("msg", "你的订单已取消");
+		return "f:/jsps/msg.jsp";
+	}
+	/**
+	 * 交易完成
+	 * @param req
+	 * @param resp
+	 * @return
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public String confirm(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		String oid=req.getParameter("oid");
+		
+		int status=orderService.findStatus(oid);
+		if(status !=3){
+			req.setAttribute("code", "error");
+			req.setAttribute("msg", "状态不对，不能确认收货");
+			return "f:/jsps/msg.jsp";
+		}
+		orderService.updateStatus(oid, 4);
+		req.setAttribute("code", "success");
+		req.setAttribute("msg", "交易成功");
+		return "f:jsps/msg.jsp";
+	}
+	/**
+	 * 加载订单
+	 * @param req
+	 * @param resp
+	 * @return
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	public String load(HttpServletRequest req,HttpServletResponse resp)
 		throws ServletException,IOException{
 		String oid=req.getParameter("oid");
@@ -161,7 +214,7 @@ public class OrderServlet extends BaseServlet {
 		 */
 		pb.setUrl(url);
 		req.setAttribute("pb", pb);
-		return "f:/jsps/book/list.jsp";
+		return "f:/jsps/order/list.jsp";
 	}
 
 }

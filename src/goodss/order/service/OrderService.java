@@ -13,6 +13,32 @@ public class OrderService {
 	private OrderDao orderDao=new OrderDao();
 
 	/**
+	 * 修改订单状态
+	 * @param oid
+	 * @param status
+	 */
+	public void updateStatus(String oid, int status) {
+		try {
+			orderDao.updateStatus(oid, status);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * 查询订单状态
+	 * @param oid
+	 * @return
+	 */
+	public int findStatus(String oid) {
+		try {
+			return orderDao.findStatus(oid);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
 	 * 生成订单
 	 * @param order
 	 */

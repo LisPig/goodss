@@ -119,7 +119,7 @@ public class OrderService {
 			} catch (SQLException e2) {
 				// TODO: handle exception
 			}
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 

@@ -36,7 +36,7 @@ public class OrderDao {
 	 * @throws SQLException
 	 */
 	public int findStatus(String oid) throws SQLException{
-		String sql="select status from t_order oid=?";
+		String sql="select status from t_order where oid=?";
 		Number number=(Number)qr.query(sql, new ScalarHandler(),oid);
 		return number.intValue();
 	}
@@ -141,11 +141,11 @@ public class OrderDao {
 		}
 		
 		//总记录数
-		String sql="select count(*) from t_order" +whereSql;
+		String sql="select count(*) from t_order" + whereSql;
 		Number number=(Number)qr.query(sql,new ScalarHandler(),params.toArray());
 		int tr=number.intValue();//得到了总记录数
 		//得到beanList,即当前页记录
-		sql="select * from t_order"+ whereSql +"order by ordertime desc limit ?,?";
+		sql="select * from t_order"+ whereSql + "  order by ordertime desc limit ?,?";
 		params.add((pc-1)*ps);//当前页首行记录的下标
 		params.add(ps);//一共查询几行，就是每页记录数
 		
